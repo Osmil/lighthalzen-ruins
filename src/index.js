@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import logoImg from "./assets/logo.png";
 import { CameraController } from "./util/camera-controller";
+import { Maze } from "./util/maze";
 
 class MyGame extends Phaser.Scene {
   constructor() {
@@ -13,18 +14,8 @@ class MyGame extends Phaser.Scene {
 
   create() {
     this.cameraController = new CameraController(this);
+    this.maze = new Maze(this);
     this.initInput();
-    const logo = this.add.image(400, 150, "logo");
-
-    this.tweens.add({
-      targets: logo,
-      y: 450,
-      duration: 2000,
-      ease: "Power2",
-      yoyo: true,
-      loop: -1,
-    });
-    this.cameras;
   }
 
   initInput() {
