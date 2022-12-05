@@ -1,5 +1,6 @@
 import { Creature } from "./creature";
 import { Tower } from "./tower";
+import { MyGame } from "../index";
 
 export class Maze {
   tileWidth = 32;
@@ -29,7 +30,7 @@ export class Maze {
           0,0,0,0,0,0,0,0,0,0,]
   /**
    *
-   * @param { Phaser.Scene} scene
+   * @param { MyGame } scene
    */
   constructor(scene) {
     this.scene = scene;
@@ -40,13 +41,17 @@ export class Maze {
 
   #addCreature() {
     const startPoint = getPath()[0];
-    const creatureGraphics = this.scene.add.circle(
-      startPoint[0] * this.tileWidth,
-      startPoint[1] * this.tileHeight,
-      5,
-      0xff00ff
-    );
+    const x = startPoint[0] * this.tileWidth;
+    const y = startPoint[1] * this.tileHeight;
+    const creatureGraphics = this.scene.add.circle(x, y, 5, 0xff00ff);
 
+    const world = this.scene.gameController.world;
+    world.createEntity({
+      components: [
+        { type: "PositionComponent", x, y },
+        { type: "GraphicsComponent", graphics: creatureGraphics },
+      ],
+    });
     const creature = new Creature(creatureGraphics, getPath());
 
     this.creatureList.push(creature);

@@ -1,11 +1,13 @@
 import Phaser from "phaser";
 import logoImg from "./assets/logo.png";
 import { CameraController } from "./util/camera-controller";
+import { GameController } from "./util/game-controller";
 import { Maze } from "./util/maze";
 
-class MyGame extends Phaser.Scene {
+export class MyGame extends Phaser.Scene {
   constructor() {
     super();
+    this.gameController = new GameController();
   }
 
   preload() {
@@ -29,7 +31,7 @@ class MyGame extends Phaser.Scene {
   }
 
   update(time, delta) {
-    this.cameraController.update();
+    this.cameraController.update(delta);
     this.maze.update(delta);
   }
 }
