@@ -1,11 +1,21 @@
 import { Creature } from "./creature";
+import { Tower } from "./tower";
 
 export class Maze {
   tileWidth = 32;
   tileHeight = 32;
+
+  offset = 16;
   mazeWidth = 10;
   mazeHeight = 10;
+  /**
+   * @type Array<Creature>
+   */
   creatureList = [];
+  /**
+   * @type Array<Tower>
+   */
+  towerList = [];
   /* prettier-ignore */
   maze = [0,0,0,0,0,0,0,0,0,0,
           0,0,0,0,0,0,0,0,0,0,
@@ -42,25 +52,68 @@ export class Maze {
     this.creatureList.push(creature);
   }
 
-  update() {
+  update(delta) {
     this.creatureList.forEach((creature) => {
-      creature.update();
+      creature.update(delta);
     });
+
+    this.creatureList
+      .filter((creature) => creature.destroyed)
+      .forEach(() => this.#addCreature());
+
+    this.creatureList = this.creatureList.filter(
+      (creature) => !creature.destroyed
+    );
+
+    this.towerList.forEach((tower) => {
+      tower.update(this.creatureList, delta);
+    });
+
+    this.creatureList = this.creatureList.filter(
+      (creature) => !creature.destroyed
+    );
   }
 
   #init() {
     for (let x = 0; x <= this.mazeHeight; x++) {
       for (let y = 0; y <= this.mazeWidth; y++) {
-        this.scene.add.rectangle(
+        const type = this.maze[y * 10 + x];
+        const tile = this.scene.add.rectangle(
           x * this.tileWidth,
           y * this.tileHeight,
           this.tileWidth,
           this.tileHeight,
-          getFillColor(this.maze[y * 10 + x])
+          getFillColor(type)
         );
+
+        tile.setInteractive(undefined, Phaser.Geom.Rectangle.Contains);
+
+        if (type == 0) {
+          tile.addListener(Phaser.Input.Events.GAMEOBJECT_POINTER_MOVE, () => {
+            tile.setAlpha(0.5);
+          });
+
+          tile.addListener(Phaser.Input.Events.GAMEOBJECT_POINTER_OUT, () => {
+            tile.setAlpha(1);
+          });
+
+          tile.addListener(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, () => {
+            const rect = this.scene.add.rectangle(
+              x * this.tileWidth,
+              y * this.tileHeight,
+              this.tileWidth / 2,
+              this.tileHeight / 2,
+              0x335832
+            );
+
+            const tower = new Tower(this.scene, rect);
+            this.towerList.push(tower);
+          });
+        }
       }
     }
 
+    /**
     for (let x = 0; x <= this.mazeHeight; x++) {
       for (let y = 0; y <= this.mazeWidth; y++) {
         this.scene.add.text(
@@ -72,7 +125,7 @@ export class Maze {
           }
         );
       }
-    }
+    } */
   }
 }
 

@@ -28,9 +28,9 @@ class MyGame extends Phaser.Scene {
     );
   }
 
-  update() {
+  update(time, delta) {
     this.cameraController.update();
-    this.maze.update();
+    this.maze.update(delta);
   }
 }
 

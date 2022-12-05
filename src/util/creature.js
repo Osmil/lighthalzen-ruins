@@ -10,7 +10,10 @@ export class Creature {
   }
 
   update() {
-    if (!this.path.length) return;
+    if (!this.path.length) {
+      this.destroyed = true;
+      return this.graphics.destroy();
+    }
     const position = this.path[0];
     const whereWeWantToGo = {
       x: position[0] * 32,
@@ -22,7 +25,6 @@ export class Creature {
     );
 
     //calc direction vector btween current and position
-
     const vector = new Phaser.Math.Vector2(
       whereWeWantToGo.x - this.graphics.x,
       whereWeWantToGo.y - this.graphics.y
@@ -36,5 +38,13 @@ export class Creature {
     } else {
       this.path.splice(0, 1);
     }
+  }
+
+  get x() {
+    return this.graphics.x;
+  }
+
+  get y() {
+    return this.graphics.y;
   }
 }

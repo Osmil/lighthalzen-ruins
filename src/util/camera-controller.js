@@ -38,16 +38,16 @@ export class CameraController {
   doScrolling() {
     const camera = this.scene.cameras.main;
     if (this.scene.input.activePointer.x > this.rightSide) {
-      camera.x -= this.scrollSpeed;
+      camera.scrollX += this.scrollSpeed;
     }
     if (this.scene.input.activePointer.y > this.bottomSide) {
-      camera.y -= this.scrollSpeed;
+      camera.scrollY += this.scrollSpeed;
     }
     if (this.scene.input.activePointer.x < this.delta) {
-      camera.x += this.scrollSpeed;
+      camera.scrollX -= this.scrollSpeed;
     }
     if (this.scene.input.activePointer.y < this.delta) {
-      camera.y += this.scrollSpeed;
+      camera.scrollY -= this.scrollSpeed;
     }
   }
 }
