@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import logoImg from "./assets/logo.png";
+import { CameraController } from "./util/camera-controller";
 
 class MyGame extends Phaser.Scene {
   constructor() {
@@ -11,6 +12,8 @@ class MyGame extends Phaser.Scene {
   }
 
   create() {
+    this.cameraController = new CameraController(this);
+    this.initInput();
     const logo = this.add.image(400, 150, "logo");
 
     this.tweens.add({
@@ -21,6 +24,21 @@ class MyGame extends Phaser.Scene {
       yoyo: true,
       loop: -1,
     });
+    this.cameras;
+  }
+
+  initInput() {
+    const spaceKey = this.input.keyboard.addKey(
+      Phaser.Input.Keyboard.KeyCodes.SPACE
+    );
+    spaceKey.on(
+      "down",
+      this.cameraController.reset.bind(this.cameraController)
+    );
+  }
+
+  update() {
+    this.cameraController.update();
   }
 }
 
