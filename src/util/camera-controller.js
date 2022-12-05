@@ -3,7 +3,7 @@ export class CameraController {
 
   delta = 70;
   scrollSpeed = 5;
-
+  #activeScroll = true;
   /**
    *
    * @param { Phaser.Scene} scene
@@ -16,9 +16,14 @@ export class CameraController {
   refresh() {
     this.rightSide = this.scene.game.renderer.width - this.delta;
     this.bottomSide = this.scene.game.renderer.height - this.delta;
+
+    this.scene.input.on("gameout", () => (this.#activeScroll = false));
+
+    this.scene.input.on("gameover", () => (this.#activeScroll = true));
   }
 
   update() {
+    if (!this.#activeScroll) return;
     if (this.#isScrollingAroundPoint) {
       this.doScrollingAroundPoint();
     } else {
