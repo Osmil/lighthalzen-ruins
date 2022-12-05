@@ -30,6 +30,7 @@ class MyGame extends Phaser.Scene {
 
   update() {
     this.cameraController.update();
+    this.maze.update();
   }
 }
 
