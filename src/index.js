@@ -3,11 +3,13 @@ import logoImg from "./assets/logo.png";
 import { CameraController } from "./util/camera-controller";
 import { GameController } from "./util/game-controller";
 import { Maze } from "./util/maze";
+import { UIController } from "./util/ui-controller";
 
 export class MyGame extends Phaser.Scene {
   constructor() {
     super();
     this.gameController = new GameController();
+    this.uiController = new UIController(this);
     this.gameController.world.createEntity({
       id: "scene",
       c: [{ type: "SceneComponent", scene: this }],
@@ -22,6 +24,7 @@ export class MyGame extends Phaser.Scene {
     this.cameraController = new CameraController(this);
     this.maze = new Maze(this);
     this.initInput();
+    this.uiController.init();
   }
 
   initInput() {
