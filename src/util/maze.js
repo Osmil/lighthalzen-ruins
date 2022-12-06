@@ -1,10 +1,13 @@
 import { Creature } from "./creature";
 import { Tower } from "./tower";
 import { MyGame } from "../index";
-
+import { PositionComponent } from "../components/position";
+import { TowerComponent } from "../components/tower";
+export const TILE_WIDTH = 32;
+export const TILE_HEIGHT = 32;
 export class Maze {
-  tileWidth = 32;
-  tileHeight = 32;
+  tileWidth = TILE_WIDTH;
+  tileHeight = TILE_HEIGHT;
 
   offset = 16;
   mazeWidth = 10;
@@ -43,20 +46,17 @@ export class Maze {
     const startPoint = getPath()[0];
     const x = startPoint[0] * this.tileWidth;
     const y = startPoint[1] * this.tileHeight;
-    const creatureGraphics = this.scene.add.circle(x, y, 5, 0xff00ff);
 
     const world = this.scene.gameController.world;
     world.createEntity({
       components: [
         { type: "PositionComponent", x, y },
-        { type: "GraphicsComponent", graphics: creatureGraphics },
+        { type: "CreatureComponent" },
+        { type: "StatsComponent" },
+        { type: "PathComponent", path: getPath() },
       ],
     });
-    const creature = new Creature(creatureGraphics, getPath());
-
-    this.creatureList.push(creature);
   }
-
   update(delta) {
     this.creatureList.forEach((creature) => {
       creature.update(delta);
@@ -82,14 +82,18 @@ export class Maze {
   #init() {
     for (let x = 0; x <= this.mazeHeight; x++) {
       for (let y = 0; y <= this.mazeWidth; y++) {
+        const posX = x * this.tileWidth;
+        const posY = y * this.tileHeight;
         const type = this.maze[y * 10 + x];
         const tile = this.scene.add.rectangle(
-          x * this.tileWidth,
-          y * this.tileHeight,
+          posX,
+          posY,
           this.tileWidth,
           this.tileHeight,
           getFillColor(type)
         );
+
+        if (x == 5 && y == 5) this.scene.cameras.main.centerOn(posX, posY);
 
         tile.setInteractive(undefined, Phaser.Geom.Rectangle.Contains);
 
@@ -103,16 +107,12 @@ export class Maze {
           });
 
           tile.addListener(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, () => {
-            const rect = this.scene.add.rectangle(
-              x * this.tileWidth,
-              y * this.tileHeight,
-              this.tileWidth / 2,
-              this.tileHeight / 2,
-              0x335832
-            );
-
-            const tower = new Tower(this.scene, rect);
-            this.towerList.push(tower);
+            const tower = this.scene.gameController.world.createEntity({
+              c: [
+                { type: "PositionComponent", x: posX, y: posY },
+                { type: "TowerComponent" },
+              ],
+            });
           });
         }
       }
@@ -122,8 +122,8 @@ export class Maze {
     for (let x = 0; x <= this.mazeHeight; x++) {
       for (let y = 0; y <= this.mazeWidth; y++) {
         this.scene.add.text(
-          x * this.tileWidth,
-          y * this.tileHeight,
+          posX
+          posY,
           `${x}|${y}`,
           {
             fontSize: 8,

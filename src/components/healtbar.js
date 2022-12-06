@@ -1,16 +1,14 @@
 import { Component } from "ape-ecs";
 import Phaser from "phaser";
 
-export class GraphicsComponent extends Component {
+export class HealthbarComponent extends Component {
   /**
-   * @type Phaser.GameObjects.Graphics
+   * @type Phaser.GameObjects.Container
    */
   graphics = undefined;
-  delete = false;
   static changeEvents = true;
-
   preDestroy() {
     if (this.graphics) this.graphics.destroy();
   }
 }
-GraphicsComponent.properties = { graphics: undefined };
+HealthbarComponent.properties = { graphics: undefined };

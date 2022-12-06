@@ -8,6 +8,10 @@ export class MyGame extends Phaser.Scene {
   constructor() {
     super();
     this.gameController = new GameController();
+    this.gameController.world.createEntity({
+      id: "scene",
+      c: [{ type: "SceneComponent", scene: this }],
+    });
   }
 
   preload() {
@@ -33,6 +37,7 @@ export class MyGame extends Phaser.Scene {
   update(time, delta) {
     this.cameraController.update(delta);
     this.maze.update(delta);
+    this.gameController.update(delta);
   }
 }
 
