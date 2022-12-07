@@ -16,10 +16,21 @@ import { HealthSystem } from "../systems/health";
 import { ProjectileSystem } from "../systems/projectile";
 import { StatsSystem } from "../systems/stats";
 import { TowersSystem } from "../systems/towers";
+import { getPath, TILE_HEIGHT, TILE_WIDTH } from "./maze";
 import { Projectile } from "./projectile";
 
-export class GameController {
+export class GameController extends Phaser.Events.EventEmitter {
+  health = 10;
+  world;
+
+  wave = 0;
+  timeSince = 0;
+  spawned = 0;
+
+  isSpawning = false;
+
   constructor() {
+    super();
     this.world = new World();
     this.world.registerComponent(PositionComponent);
     this.world.registerComponent(GraphicsComponent);
@@ -49,5 +60,76 @@ export class GameController {
   update(delta) {
     this.frameEntity.getOne(DeltaComponent).delta = delta;
     this.world.runSystems("all");
+
+    if (this.isSpawning) {
+      this.timeSince += delta;
+      if (this.spawned === waves[this.wave].amount) {
+        this.isSpawning = false;
+        this.wave += 1;
+        this.spawned = 0;
+      } else {
+        if (this.timeSince >= waves[this.wave].wait) {
+          this.addCreature();
+          this.spawned += 1;
+          this.timeSince = 0;
+        }
+      }
+    }
+  }
+
+  start() {
+    if (!this.isSpawning) this.spawnWave(this.wave);
+  }
+
+  spawnWave(number) {
+    this.isSpawning = true;
+    this.wave = number;
+    this.spawned = 0;
+  }
+
+  addCreature() {
+    const startPoint = getPath()[0];
+    const x = startPoint[0] * TILE_WIDTH;
+    const y = startPoint[1] * TILE_HEIGHT;
+
+    this.world.createEntity({
+      components: [
+        { type: "PositionComponent", x, y },
+        { type: "CreatureComponent" },
+        { type: "StatsComponent" },
+        { type: "PathComponent", path: getPath() },
+      ],
+    });
+  }
+
+  createTower(x, y) {
+    if (this.health >= 5) {
+      this.world.createEntity({
+        c: [{ type: "PositionComponent", x, y }, { type: "TowerComponent" }],
+      });
+      this.reduceHealthBy(5);
+    }
+  }
+
+  reduceHealthBy(amount, isDamage) {
+    this.health -= amount;
+    this.emit(GameEvents.HEALTH_CHANGE);
+    if (isDamage) this.emit(GameEvents.TAKE_DAMAGE);
+  }
+
+  increaseHealthBy(amount) {
+    this.health += amount;
+    this.emit(GameEvents.HEALTH_CHANGE);
   }
 }
+
+export const GameEvents = {
+  HEALTH_CHANGE: 0,
+  TAKE_DAMAGE: 1,
+};
+
+const waves = [
+  { amount: 10, wait: 250 },
+  { amount: 3, wait: 50 },
+  { amount: 20, wait: 100 },
+];

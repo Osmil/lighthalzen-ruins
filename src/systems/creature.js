@@ -29,6 +29,10 @@ export class CreatureSystem extends System {
 
     if (!path.length) {
       entity.destroy();
+      this.world
+        .getEntity("scene")
+        .getOne(SceneComponent)
+        .scene.gameController.reduceHealthBy(5);
       return;
     }
     const position = path[0];

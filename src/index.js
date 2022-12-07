@@ -3,13 +3,12 @@ import logoImg from "./assets/logo.png";
 import { CameraController } from "./util/camera-controller";
 import { GameController } from "./util/game-controller";
 import { Maze } from "./util/maze";
-import { UIController } from "./util/ui-controller";
+import { UIController, UIScene } from "./util/ui-controller";
 
 export class MyGame extends Phaser.Scene {
   constructor() {
     super();
     this.gameController = new GameController();
-    this.uiController = new UIController(this);
     this.gameController.world.createEntity({
       id: "scene",
       c: [{ type: "SceneComponent", scene: this }],
@@ -24,7 +23,30 @@ export class MyGame extends Phaser.Scene {
     this.cameraController = new CameraController(this);
     this.maze = new Maze(this);
     this.initInput();
-    this.uiController.init();
+    this.scene.run("UIScene", { game: this.gameController });
+
+    this.handleResize();
+    this.cameraController.refresh(
+      document.body.clientWidth,
+      document.body.clientHeight
+    );
+    window.addEventListener("resize", (e) => {
+      this.handleResize();
+      this.cameraController.refresh(
+        document.body.clientWidth,
+        document.body.clientHeight
+      );
+    });
+  }
+
+  handleResize() {
+    this.game.scale.resize(
+      document.body.clientWidth,
+      document.body.clientHeight
+    );
+    this.scene
+      .get("UIScene")
+      .refresh(document.body.clientWidth, document.body.clientHeight);
   }
 
   initInput() {
@@ -39,7 +61,6 @@ export class MyGame extends Phaser.Scene {
 
   update(time, delta) {
     this.cameraController.update(delta);
-    this.maze.update(delta);
     this.gameController.update(delta);
   }
 }
@@ -49,7 +70,7 @@ const config = {
   parent: "phaser-example",
   width: 800,
   height: 600,
-  scene: MyGame,
+  scene: [MyGame, UIScene],
 };
 
 const game = new Phaser.Game(config);

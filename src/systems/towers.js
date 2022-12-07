@@ -1,6 +1,7 @@
 import { System } from "ape-ecs";
 import { CreatureComponent } from "../components/creature";
 import { DeltaComponent } from "../components/delta";
+import { GraphicsComponent } from "../components/graphics";
 import { PositionComponent } from "../components/position";
 import { SceneComponent } from "../components/scene";
 import { TowerComponent } from "../components/tower";
@@ -21,7 +22,8 @@ export class TowersSystem extends System {
     const creatures = Array.from(this.enemyQuery.execute());
     const delta = this.world.getEntity("delta").getOne(DeltaComponent).delta;
     this.addGraphics();
-    for (const entity of entities) {
+    console.log(entities.size);
+    entities.forEach((entity) => {
       const point = entity.getOne(PositionComponent);
       const stats = entity.getOne(TowerComponent);
       stats.shootTimer += delta;
@@ -41,31 +43,34 @@ export class TowersSystem extends System {
             )
         )
         .at(0);
+      if (!nearestCreature) {
+        entity.getOne(GraphicsComponent).graphics.strokeColor = 0x88ff66;
+      } else {
+        entity.getOne(GraphicsComponent).graphics.strokeColor = 0xbb4422;
 
-      if (
-        !nearestCreature ||
-        Phaser.Math.Distance.BetweenPoints(
+        const distance = Phaser.Math.Distance.BetweenPoints(
           point,
           nearestCreature.getOne(PositionComponent)
-        ) > stats.range
-      ) {
-        continue;
+        );
+        if (distance < stats.range) {
+          this.world.createEntity({
+            components: [
+              { type: "PositionComponent", x: point.x, y: point.y },
+              { type: "ProjectileComponent", target: nearestCreature },
+            ],
+          });
+        } else {
+          entity.getOne(GraphicsComponent).graphics.strokeColor = 0xff0000;
+        }
       }
-      //were nearby, create projectile
-      //TODO create helper for this
-      this.world.createEntity({
-        components: [
-          { type: "PositionComponent", x: point.x, y: point.y },
-          { type: "ProjectileComponent", target: nearestCreature },
-        ],
-      });
-    }
+    });
   }
 
   addGraphics() {
     const scene = this.world.getEntity("scene").getOne(SceneComponent).scene;
     this.changes.forEach((change) => {
       if (change.op == "add") {
+        this.mainQuery.refresh();
         const entity = this.world.getEntity(change.entity);
         const position = entity.getOne(PositionComponent);
         const graphics = scene.add.rectangle(
@@ -75,6 +80,9 @@ export class TowersSystem extends System {
           TILE_HEIGHT / 2,
           0x335832
         );
+
+        graphics.setStrokeStyle(3);
+
         entity.addComponent({ type: "GraphicsComponent", graphics });
       }
     });

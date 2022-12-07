@@ -13,10 +13,9 @@ export class CameraController {
     this.refresh();
   }
 
-  refresh() {
-    this.rightSide = this.scene.game.renderer.width - this.delta;
-    this.bottomSide = this.scene.game.renderer.height - this.delta;
-
+  refresh(width, height) {
+    this.rightSide = width - this.delta;
+    this.bottomSide = height - this.delta;
     this.scene.input.on("gameout", () => (this.#activeScroll = false));
     this.scene.input.on("gameover", () => (this.#activeScroll = true));
   }
@@ -24,9 +23,9 @@ export class CameraController {
   update() {
     if (!this.#activeScroll) return;
     if (this.#isScrollingAroundPoint) {
-      this.doScrollingAroundPoint();
+      //this.doScrollingAroundPoint();
     } else {
-      this.doScrolling();
+      // this.doScrolling();
     }
   }
 

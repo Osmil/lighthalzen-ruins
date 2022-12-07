@@ -38,45 +38,6 @@ export class Maze {
   constructor(scene) {
     this.scene = scene;
     this.#init();
-
-    this.#addCreature();
-  }
-
-  #addCreature() {
-    const startPoint = getPath()[0];
-    const x = startPoint[0] * this.tileWidth;
-    const y = startPoint[1] * this.tileHeight;
-
-    const world = this.scene.gameController.world;
-    world.createEntity({
-      components: [
-        { type: "PositionComponent", x, y },
-        { type: "CreatureComponent" },
-        { type: "StatsComponent" },
-        { type: "PathComponent", path: getPath() },
-      ],
-    });
-  }
-  update(delta) {
-    this.creatureList.forEach((creature) => {
-      creature.update(delta);
-    });
-
-    this.creatureList
-      .filter((creature) => creature.destroyed)
-      .forEach(() => this.#addCreature());
-
-    this.creatureList = this.creatureList.filter(
-      (creature) => !creature.destroyed
-    );
-
-    this.towerList.forEach((tower) => {
-      tower.update(this.creatureList, delta);
-    });
-
-    this.creatureList = this.creatureList.filter(
-      (creature) => !creature.destroyed
-    );
   }
 
   #init() {
@@ -107,12 +68,7 @@ export class Maze {
           });
 
           tile.addListener(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, () => {
-            const tower = this.scene.gameController.world.createEntity({
-              c: [
-                { type: "PositionComponent", x: posX, y: posY },
-                { type: "TowerComponent" },
-              ],
-            });
+            this.scene.gameController.createTower(posX, posY);
           });
         }
       }
@@ -134,7 +90,7 @@ export class Maze {
   }
 }
 
-function getPath() {
+export function getPath() {
   return [
     [2, 2],
     [2, 3],

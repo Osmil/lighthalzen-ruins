@@ -74,9 +74,13 @@ export class ProjectileSystem extends System {
       projectilePosition,
       creaturePosition
     );
+
+    const targetGraphics =
+      projectileComponent.target.getOne(GraphicsComponent)?.graphics;
+    if (!targetGraphics) return;
+
     const combinedRadii =
-      entity.getOne(GraphicsComponent).graphics.radius +
-      projectileComponent.target.getOne(GraphicsComponent).graphics.radius;
+      entity.getOne(GraphicsComponent).graphics.radius + targetGraphics.radius;
     if (distance < combinedRadii) {
       //HIT
       const stats = projectileComponent.target.getOne(StatsComponent);
