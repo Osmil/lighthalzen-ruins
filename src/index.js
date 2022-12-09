@@ -14,6 +14,12 @@ import bottomRightCorner from "./assets/grass/bottomRightCorner.png";
 import bottomLeftCorner from "./assets/grass/bottomLeftCorner.png";
 import topRightCorner from "./assets/grass/topRightCorner.png";
 import topLeftCorner from "./assets/grass/topLeftCorner.png";
+import greenCreature from "./assets/creatures/green.png";
+import redCreature from "./assets/creatures/red.png";
+import greyCreature from "./assets/creatures/grey.png";
+import orangeCreature from "./assets/creatures/orange.png";
+import redTower from "./assets/towers/red.png";
+import greenTower from "./assets/towers/green.png";
 import { CameraController } from "./util/camera-controller";
 import { GameController } from "./util/game-controller";
 import { Maze } from "./util/maze";
@@ -31,6 +37,7 @@ export class MyGame extends Phaser.Scene {
 
   preload() {
     this.load.image("logo", logoImg);
+    // Tiles
     this.load.image("topLeft", topLeft);
     this.load.image("topRight", topRight);
     this.load.image("top", top);
@@ -45,6 +52,14 @@ export class MyGame extends Phaser.Scene {
     this.load.image("bottomLeftCorner", bottomLeftCorner);
     this.load.image("topRightCorner", topRightCorner);
     this.load.image("topLeftCorner", topLeftCorner);
+    // Creatures
+    this.load.image("greenCreature", greenCreature);
+    this.load.image("redCreature", redCreature);
+    this.load.image("greyCreature", greyCreature);
+    this.load.image("orangeCreature", orangeCreature);
+    // Tower
+    this.load.image("greenTower", greenTower);
+    this.load.image("redTower", redTower);
   }
 
   create() {

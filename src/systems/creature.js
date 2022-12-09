@@ -26,6 +26,7 @@ export class CreatureSystem extends System {
     const creaturePosition = entity.getOne(PositionComponent);
     const creatureComponent = entity.getOne(CreatureComponent);
     const statsComponent = entity.getOne(StatsComponent);
+    const graphicsComponent = entity.getOne(GraphicsComponent);
 
     if (!pathComponent.path) return;
     const path = pathComponent.path;
@@ -56,6 +57,8 @@ export class CreatureSystem extends System {
 
     vector.normalize();
 
+    graphicsComponent.graphics.rotation = vector.angle();
+
     vector.scale(statsComponent.speed);
 
     if (distance > 5) {
@@ -74,15 +77,18 @@ export class CreatureSystem extends System {
       if (change.op == "add" && change.type == "CreatureComponent") {
         this.creatureQuery.refresh();
         const position = entity.getOne(PositionComponent);
-        const graphics = scene.add.circle(position.x, position.y, 40, 0xff00ff);
+        const graphics = scene.add.image(
+          position.x,
+          position.y,
+          "greenCreature"
+        );
+        graphics.radius = 40;
         entity.addComponent({ type: "GraphicsComponent", graphics });
       } else if (change.op == "change" && entity) {
         const position = entity.getOne(PositionComponent);
-
         entity
           .getOne(GraphicsComponent)
           .graphics.setPosition(position.x, position.y);
-
         entity
           .getOne(HealthbarComponent)
           .graphics.setPosition(position.x, position.y - 10);

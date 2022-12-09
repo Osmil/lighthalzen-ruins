@@ -25,6 +25,18 @@ export class TowersSystem extends System {
     entities.forEach((entity) => {
       const point = entity.getOne(PositionComponent);
       const stats = entity.getOne(TowerComponent);
+      const graphics = entity.getOne(GraphicsComponent);
+
+      if (stats.nearestCreature) {
+        const position = stats.nearestCreature.getOne(PositionComponent);
+        if (position) {
+          const angle = new Phaser.Math.Vector2(
+            position.x - point.x,
+            position.y - point.y
+          ).angle();
+          graphics.graphics.rotation = angle + Math.PI / 2;
+        }
+      }
       stats.shootTimer += delta;
       if (stats.shootTimer < stats.shootCooldown) return;
       stats.shootTimer = 0;
@@ -43,14 +55,12 @@ export class TowersSystem extends System {
         )
         .at(0);
       if (!nearestCreature) {
-        entity.getOne(GraphicsComponent).graphics.strokeColor = 0x88ff66;
+        entity.getOne(GraphicsComponent).graphics.setAngle(0);
+        stats.nearestCreature = undefined;
       } else {
-        entity.getOne(GraphicsComponent).graphics.strokeColor = 0xbb4422;
-
-        const distance = Phaser.Math.Distance.BetweenPoints(
-          point,
-          nearestCreature.getOne(PositionComponent)
-        );
+        const position = nearestCreature.getOne(PositionComponent);
+        stats.nearestCreature = nearestCreature;
+        const distance = Phaser.Math.Distance.BetweenPoints(point, position);
         if (distance < stats.range) {
           this.world.createEntity({
             components: [
@@ -72,15 +82,9 @@ export class TowersSystem extends System {
         this.mainQuery.refresh();
         const entity = this.world.getEntity(change.entity);
         const position = entity.getOne(PositionComponent);
-        const graphics = scene.add.rectangle(
-          position.x,
-          position.y,
-          TILE_WIDTH / 2,
-          TILE_HEIGHT / 2,
-          0x335832
-        );
+        const graphics = scene.add.image(position.x, position.y, "redTower");
 
-        graphics.setStrokeStyle(3);
+        //graphics.setStrokeStyle(3);
 
         entity.addComponent({ type: "GraphicsComponent", graphics });
       }

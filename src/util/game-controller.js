@@ -93,6 +93,9 @@ export class GameController extends Phaser.Events.EventEmitter {
 
   start() {
     this.waves = waves;
+    this.wave = 0;
+    this.timeSince = 0;
+    this.timeSinceLastWave = 0;
     if (!this.isSpawning) this.spawnWave(this.wave);
   }
 
