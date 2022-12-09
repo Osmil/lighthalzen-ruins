@@ -109,10 +109,16 @@ export class GameController extends Phaser.Events.EventEmitter {
     }
 
     if (!this.isSpawning) {
+      this.health = 10;
+      this.entityQuery
+        .refresh()
+        .execute()
+        .forEach((e) => e.destroy());
       this.waves = waves;
       this.wave = 0;
       this.timeSince = 0;
       this.timeSinceLastWave = 0;
+      this.emit(GameEvents.START);
       this.spawnWave(this.wave);
     }
   }
@@ -179,6 +185,7 @@ export const GameEvents = {
   TAKE_DAMAGE: 1,
   GAME_OVER: 2,
   SPAWN_WAVE: 3,
+  START: 4,
 };
 
 const waves = [
@@ -186,4 +193,5 @@ const waves = [
   { amount: 3, wait: 250 },
   { amount: 20, wait: 250 },
   { amount: 100, wait: 50 },
+  { amount: 1000, wait: 50 },
 ];

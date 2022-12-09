@@ -108,7 +108,7 @@ export class CreatureSystem extends System {
           .graphics.setPosition(position.x, position.y - 40);
       } else if (change.op == "destroy") {
         this.creatureQuery.refresh();
-      } else console.log("Unhandled change:", change);
+      } // else console.log("Unhandled change:", change);
     });
   }
 }

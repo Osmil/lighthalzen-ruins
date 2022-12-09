@@ -60,6 +60,11 @@ export class UIScene extends Scene {
       GameEvents.HEALTH_CHANGE,
       this.updateHealth.bind(this)
     );
+
+    this.gameController.on(GameEvents.START, () => {
+      this.wavebarContainer.destroy();
+      this.createWaveBars();
+    });
   }
 
   refresh() {
@@ -68,7 +73,6 @@ export class UIScene extends Scene {
   }
 
   updateHealth() {
-    console.log("Update health");
     this.healthText.setText("Mana: " + this.gameController.health);
   }
 
