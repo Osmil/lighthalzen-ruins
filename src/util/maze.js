@@ -74,7 +74,7 @@ export class Maze {
           });
 
           tile.addListener(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, (e) => {
-            if (!tile.activeTower)
+            if (!tile.activeTower || tile.activeTower.destroyed)
               tile.activeTower = this.scene.gameController.createTower(
                 posX,
                 posY
