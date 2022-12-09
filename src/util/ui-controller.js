@@ -50,24 +50,25 @@ export class UIScene extends Scene {
       this.gameController.start()
     );
     this.menuContainer.add(this.playButton);
-  }
-
-  refresh() {
-    if (!this.menuContainer) return;
-    this.menuContainer.setX(0);
-
     this.healthText = this.add.text(
-      50,
-      50,
+      this.renderer.width / 2,
+      0,
       "Mana: " + this.gameController.health
     );
+    this.healthText.y += this.healthText.height / 2;
     this.gameController.on(
       GameEvents.HEALTH_CHANGE,
       this.updateHealth.bind(this)
     );
   }
 
+  refresh() {
+    if (!this.menuContainer) return;
+    this.menuContainer.setX(50);
+  }
+
   updateHealth() {
+    console.log("Update health");
     this.healthText.setText("Mana: " + this.gameController.health);
   }
 
@@ -114,13 +115,7 @@ export class UIScene extends Scene {
 
   createWaveBars() {
     const height = 11 * TILE_HEIGHT;
-    const background = this.add.rectangle(
-      25,
-      height / 2 + 50,
-      50,
-      height,
-      0xeeeeee
-    );
+    this.add.rectangle(25, height / 2 + 50, 50, height, 0xeeeeee);
     this.wavebarContainer = this.add.container(0, 50);
     this.gameController.waves.forEach((wave, index) => {
       const container = this.add.container(25, 50 + 100 * index);

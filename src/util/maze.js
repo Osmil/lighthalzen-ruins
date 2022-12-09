@@ -37,7 +37,6 @@ export class Maze {
     this.scene.cameras.main.setBackgroundColor(0xeeffee);
     this.scene.cameras.main.transparent = false;
     this.scene.cameras.main.setPosition(50, 50);
-    console.log(this.scene.cameras.main);
     for (let x = 0; x <= this.mazeWidth; x++) {
       for (let y = 0; y <= this.mazeHeight; y++) {
         const posX = x * this.tileWidth;
@@ -49,24 +48,14 @@ export class Maze {
         if (x == 6 && y == 5) {
           this.scene.cameras.main.centerOn(posX, posY);
         }
-        if ((x == 10 && y == 7) || (x == 2 && y == 2)) {
-          /**
-          this.scene.add.rectangle(
-            posX,
-            posY,
-            this.tileWidth,
-            this.tileHeight,
-            getFillColor(type)
-          ); */
-        } else {
-          const tile = this.scene.add.image(posX, posY, this.getImage(x, y));
+        const tile = this.scene.add.image(posX, posY, this.getImage(x, y));
 
-          const tileType = this.getType(x, y);
-          tile.setScale(0.75);
+        const tileType = this.getType(x, y);
+        tile.setScale(0.75);
 
-          tile.setInteractive(undefined, Phaser.Geom.Rectangle.Contains);
+        tile.setInteractive(undefined, Phaser.Geom.Rectangle.Contains);
 
-          /**
+        /**
           tile.addListener(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, (e) => {
             if (e.event.ctrlKey) {
               this.getType(x, y, true);
@@ -75,29 +64,29 @@ export class Maze {
             }
           }); */
 
-          if (tileType == 0 && type === 0) {
-            tile.addListener(
-              Phaser.Input.Events.GAMEOBJECT_POINTER_MOVE,
-              () => {
-                tile.setTint(0xff00ff);
-              }
-            );
+        if (tileType == 0 && type === 0) {
+          tile.addListener(Phaser.Input.Events.GAMEOBJECT_POINTER_MOVE, () => {
+            tile.setTint(0xff00ff);
+          });
 
-            tile.addListener(Phaser.Input.Events.GAMEOBJECT_POINTER_OUT, () => {
-              tile.clearTint();
-            });
+          tile.addListener(Phaser.Input.Events.GAMEOBJECT_POINTER_OUT, () => {
+            tile.clearTint();
+          });
 
-            tile.addListener(
-              Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN,
-              (e) => {
-                if (!tile.activeTower)
-                  tile.activeTower = this.scene.gameController.createTower(
-                    posX,
-                    posY
-                  );
-              }
-            );
-          }
+          tile.addListener(Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN, (e) => {
+            if (!tile.activeTower)
+              tile.activeTower = this.scene.gameController.createTower(
+                posX,
+                posY
+              );
+          });
+        }
+        if (x == 10 && y == 6) {
+          const tile = this.scene.add.image(posX, posY, "goal");
+        }
+
+        if (x == 2 && y == 2) {
+          const tile = this.scene.add.image(posX, posY, "base");
         }
       }
     }
@@ -240,17 +229,5 @@ export function getPath() {
     [10, 4],
     [10, 5],
     [10, 6],
-    [10, 7],
   ];
-}
-
-function getFillColor(number) {
-  switch (number) {
-    case 0:
-      return 0x00ff00;
-    case 1:
-      return 0xff0000;
-    case 2:
-      return 0x0000ff;
-  }
 }

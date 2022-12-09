@@ -162,7 +162,7 @@ export class GameController extends Phaser.Events.EventEmitter {
         { fontSize: 128 }
       );
 
-      this.text.x -= this.text.width;
+      this.text.x -= this.text.width / 2;
       this.text.y -= this.text.height;
     }
     if (isDamage) this.emit(GameEvents.TAKE_DAMAGE);
@@ -185,4 +185,5 @@ const waves = [
   { amount: 10, wait: 250 },
   { amount: 3, wait: 250 },
   { amount: 20, wait: 250 },
+  { amount: 100, wait: 50 },
 ];

@@ -20,6 +20,8 @@ import greyCreature from "./assets/creatures/grey.png";
 import orangeCreature from "./assets/creatures/orange.png";
 import redTower from "./assets/towers/red.png";
 import greenTower from "./assets/towers/green.png";
+import goal from "./assets/goal.png";
+import base from "./assets/base.png";
 import { CameraController } from "./util/camera-controller";
 import { GameController } from "./util/game-controller";
 import { Maze } from "./util/maze";
@@ -60,6 +62,9 @@ export class MyGame extends Phaser.Scene {
     // Tower
     this.load.image("greenTower", greenTower);
     this.load.image("redTower", redTower);
+    // Goalbase
+    this.load.image("goal", goal);
+    this.load.image("base", base);
   }
 
   create() {
