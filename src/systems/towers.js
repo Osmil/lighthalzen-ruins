@@ -1,4 +1,4 @@
-import { System } from "ape-ecs";
+import { Entity, System } from "ape-ecs";
 import { CreatureComponent } from "../components/creature";
 import { DeltaComponent } from "../components/delta";
 import { GraphicsComponent } from "../components/graphics";
@@ -16,6 +16,12 @@ export class TowersSystem extends System {
   }
 
   update(tick) {
+    if (
+      this.world.getEntity("scene").getOne(SceneComponent).scene.gameController
+        .gameOver
+    ) {
+      return;
+    }
     this.mainQuery.refresh();
     const entities = this.mainQuery.execute();
     this.enemyQuery.refresh();
@@ -53,6 +59,17 @@ export class TowersSystem extends System {
               b.getOne(PositionComponent)
             )
         )
+        .filter((e) => {
+          return (
+            Phaser.Math.Distance.BetweenPoints(
+              point,
+              e.getOne(PositionComponent)
+            ) < stats.range
+          );
+        })
+        .sort((a, b) => {
+          return this.sortByDistanceToGoal(a, b, point);
+        })
         .at(0);
       if (!nearestCreature) {
         entity.getOne(GraphicsComponent).graphics.setAngle(0);
@@ -65,7 +82,11 @@ export class TowersSystem extends System {
           this.world.createEntity({
             components: [
               { type: "PositionComponent", x: point.x, y: point.y },
-              { type: "ProjectileComponent", target: nearestCreature },
+              {
+                type: "ProjectileComponent",
+                target: nearestCreature,
+                damage: stats.damage,
+              },
             ],
           });
         } else {
@@ -73,6 +94,31 @@ export class TowersSystem extends System {
         }
       }
     });
+  }
+  /**
+   *
+   * @param {Entity} a
+   * @param {Entity} b
+   */
+  sortByDistanceToGoal(a, b, ownPosition) {
+    const creatureComponentA = a.getOne(CreatureComponent);
+    const creatureComponentB = b.getOne(CreatureComponent);
+
+    const positionComponentA = a.getOne(PositionComponent);
+    const positionComponentB = b.getOne(PositionComponent);
+
+    if (
+      (creatureComponentA.isReturning && creatureComponentB.isReturning) ||
+      (!creatureComponentA.isReturning && !creatureComponentB.isReturning)
+    ) {
+      return (
+        Phaser.Math.Distance.BetweenPoints(positionComponentA, ownPosition) -
+        Phaser.Math.Distance.BetweenPoints(positionComponentB, ownPosition)
+      );
+    } else if (creatureComponentA.isReturning) {
+      return 1;
+    }
+    return -1;
   }
 
   addGraphics() {
@@ -82,12 +128,38 @@ export class TowersSystem extends System {
         this.mainQuery.refresh();
         const entity = this.world.getEntity(change.entity);
         const position = entity.getOne(PositionComponent);
-        const graphics = scene.add.image(position.x, position.y, "redTower");
-
+        const graphics = scene.add.image(position.x, position.y, "greenTower");
+        graphics.setInteractive(undefined, Phaser.Geom.Rectangle.ContainsPoint);
+        graphics.on(Phaser.Input.Events.POINTER_DOWN, () =>
+          this.upgrade(entity, scene)
+        );
         //graphics.setStrokeStyle(3);
 
         entity.addComponent({ type: "GraphicsComponent", graphics });
       }
     });
+  }
+
+  /**
+   *
+   * @param {Entity} towerEntity
+   * @param {Phaser.Scene} scene
+   */
+  upgrade(towerEntity, scene) {
+    const graphicsComponent = towerEntity.getOne(GraphicsComponent);
+    const statsComponent = towerEntity.getOne(TowerComponent);
+    /**
+     * @type {Phaser.GameObjects.Image}
+     */
+    graphicsComponent.graphics.destroy();
+
+    statsComponent.damage = 5;
+
+    const position = towerEntity.getOne(PositionComponent);
+    graphicsComponent.graphics = scene.add.image(
+      position.x,
+      position.y,
+      "redTower"
+    );
   }
 }

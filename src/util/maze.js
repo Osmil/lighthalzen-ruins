@@ -1,6 +1,8 @@
 import { MyGame } from "../index";
 export const TILE_WIDTH = 64 + 32;
 export const TILE_HEIGHT = 64 + 32;
+export const homePosition = { x: TILE_WIDTH * 10, y: TILE_HEIGHT * 7 };
+export const goalPosition = { x: TILE_WIDTH * 10, y: TILE_HEIGHT * 7 };
 export class Maze {
   tileWidth = TILE_WIDTH;
   tileHeight = TILE_HEIGHT;
@@ -8,6 +10,7 @@ export class Maze {
   offset = 16;
   mazeWidth = 12;
   mazeHeight = 10;
+
   /* prettier-ignore */
   maze = [0,0,0,0,0,0,0,0,0,0,0,0,
           0,0,0,0,0,0,0,0,0,0,0,0,
@@ -31,8 +34,6 @@ export class Maze {
 
   #init() {
     this.scene.cameras.main.setSize(13 * TILE_WIDTH, 11 * TILE_HEIGHT);
-    console.log(this.scene.cameras.main.width);
-
     this.scene.cameras.main.setBackgroundColor(0xeeffee);
     this.scene.cameras.main.transparent = false;
     this.scene.cameras.main.setPosition(50, 50);
@@ -48,7 +49,7 @@ export class Maze {
         if (x == 6 && y == 5) {
           this.scene.cameras.main.centerOn(posX, posY);
         }
-        if (x == 10 && y == 7) {
+        if ((x == 10 && y == 7) || (x == 2 && y == 2)) {
           /**
           this.scene.add.rectangle(
             posX,
@@ -89,7 +90,11 @@ export class Maze {
             tile.addListener(
               Phaser.Input.Events.GAMEOBJECT_POINTER_DOWN,
               (e) => {
-                this.scene.gameController.createTower(posX, posY);
+                if (!tile.activeTower)
+                  tile.activeTower = this.scene.gameController.createTower(
+                    posX,
+                    posY
+                  );
               }
             );
           }

@@ -26,7 +26,7 @@ export class HealthSystem extends System {
         const value = stats.hp / stats.maxHP;
         if (healthbarComponent) {
           healthbarComponent.graphics.getByName("foreground").width =
-            10 * value;
+            50 * value;
         }
       }
 
@@ -38,7 +38,7 @@ export class HealthSystem extends System {
         foreground.setName("foreground");
         const group = scene.add.container(
           positionComponent.x,
-          positionComponent.y - 10,
+          positionComponent.y - 40,
           [background, foreground]
         );
         entity.addComponent({ type: "HealthbarComponent", graphics: group });

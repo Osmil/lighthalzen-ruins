@@ -6,7 +6,7 @@ import { PathComponent } from "../components/path";
 import { PositionComponent } from "../components/position";
 import { SceneComponent } from "../components/scene";
 import { StatsComponent } from "../components/stats";
-import { TILE_HEIGHT, TILE_WIDTH } from "../util/maze";
+import { getPath, TILE_HEIGHT, TILE_WIDTH } from "../util/maze";
 export class CreatureSystem extends System {
   init() {
     this.subscribe("CreatureComponent");
@@ -14,6 +14,12 @@ export class CreatureSystem extends System {
   }
 
   update(tick) {
+    if (
+      this.world.getEntity("scene").getOne(SceneComponent).scene.gameController
+        .gameOver
+    ) {
+      return;
+    }
     this.addGraphics(this.changes);
     this.creatureQuery.execute().forEach(this.updateCreature.bind(this));
   }
@@ -29,16 +35,24 @@ export class CreatureSystem extends System {
     const graphicsComponent = entity.getOne(GraphicsComponent);
 
     if (!pathComponent.path) return;
-    const path = pathComponent.path;
+    let path = pathComponent.path;
 
     if (!path.length) {
-      entity.destroy();
-      this.world
-        .getEntity("scene")
-        .getOne(SceneComponent)
-        .scene.gameController.reduceHealthBy(5);
-      return;
+      // We're at the end of our path? set return
+      if (creatureComponent.isReturning) {
+        entity.destroy();
+        this.world
+          .getEntity("scene")
+          .getOne(SceneComponent)
+          .scene.gameController.reduceHealthBy(5);
+        return;
+      } else {
+        creatureComponent.isReturning = true;
+        pathComponent.path = getPath().reverse();
+        path = pathComponent.path;
+      }
     }
+
     const position = path[0];
     const whereWeWantToGo = {
       x: position[0] * TILE_WIDTH,
@@ -91,7 +105,7 @@ export class CreatureSystem extends System {
           .graphics.setPosition(position.x, position.y);
         entity
           .getOne(HealthbarComponent)
-          .graphics.setPosition(position.x, position.y - 10);
+          .graphics.setPosition(position.x, position.y - 40);
       } else if (change.op == "destroy") {
         this.creatureQuery.refresh();
       } else console.log("Unhandled change:", change);

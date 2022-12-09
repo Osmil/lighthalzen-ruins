@@ -31,7 +31,7 @@ export class UIScene extends Scene {
   init(data) {
     if (data) {
       this.gameController = data.game;
-      this.gameController.on("spawn_wave", (i) => {
+      this.gameController.on(GameEvents.SPAWN_WAVE, (i) => {
         this.updateWaveBar(i);
       });
     }
@@ -39,28 +39,22 @@ export class UIScene extends Scene {
 
   create() {
     this.init();
-    this.menuContainer = this.add.container(50, 50);
-
-    this.playButton = this.createButton({ x: 0, y: 0 }, "Play", () =>
-      this.gameController.start()
-    );
-    this.menuContainer.add(this.playButton);
 
     window.addEventListener("resize", this.refresh.bind(this));
     this.refresh();
     this.createWaveBars();
     this.createManaBar();
+    this.menuContainer = this.add.container(50, 50 / 2);
+
+    this.playButton = this.createButton({ x: 0, y: 0 }, "Play", () =>
+      this.gameController.start()
+    );
+    this.menuContainer.add(this.playButton);
   }
 
   refresh() {
     if (!this.menuContainer) return;
-    this.menuContainer.getAll().forEach(console.log);
-    const highestWidth = this.menuContainer
-      .getAll()
-      .sort((a, b) => a.width - b.width)
-      .at(0).width;
-
-    this.menuContainer.setX(this.game.renderer.width - highestWidth);
+    this.menuContainer.setX(0);
 
     this.healthText = this.add.text(
       50,
@@ -108,6 +102,7 @@ export class UIScene extends Scene {
   }
 
   createManaBar() {
+    this.add.container(0, 0);
     this.add.rectangle(
       (13 * TILE_WIDTH) / 2 + 50,
       0,

@@ -28,7 +28,7 @@ import { UIScene } from "./util/ui-controller";
 export class MyGame extends Phaser.Scene {
   constructor() {
     super();
-    this.gameController = new GameController();
+    this.gameController = new GameController(this);
     this.gameController.world.createEntity({
       id: "scene",
       c: [{ type: "SceneComponent", scene: this }],
@@ -108,7 +108,7 @@ const config = {
   height: 1080,
   scene: [MyGame, UIScene],
   scale: {
-    width: 1920,
+    width: 1300,
     height: 1080,
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,

@@ -17,7 +17,7 @@ import { ProjectileSystem } from "../systems/projectile";
 import { StatsSystem } from "../systems/stats";
 import { TowersSystem } from "../systems/towers";
 import { getPath, TILE_HEIGHT, TILE_WIDTH } from "./maze";
-
+import Phaser from "phaser";
 export class GameController extends Phaser.Events.EventEmitter {
   health = 10;
   world;
@@ -31,8 +31,13 @@ export class GameController extends Phaser.Events.EventEmitter {
 
   isSpawning = false;
 
-  constructor() {
+  /**
+   *
+   * @param {Phaser.Scene} scene
+   */
+  constructor(scene) {
     super();
+    this.scene = scene;
     this.waves = waves;
     this.world = new World();
     this.world.registerComponent(PositionComponent);
@@ -53,7 +58,9 @@ export class GameController extends Phaser.Events.EventEmitter {
     this.world.registerSystem("all", GraphicsSystem);
     this.world.registerSystem("all", StatsSystem);
     this.world.registerSystem("all", HealthSystem);
-
+    this.entityQuery = this.world
+      .createQuery()
+      .fromAny(CreatureComponent, TowerComponent);
     this.frameEntity = this.world.createEntity({
       id: "delta",
       components: [{ type: "DeltaComponent" }],
@@ -64,7 +71,7 @@ export class GameController extends Phaser.Events.EventEmitter {
     this.frameEntity.getOne(DeltaComponent).delta = delta;
     this.world.runSystems("all");
 
-    if (this.isSpawning) {
+    if (this.isSpawning && !this.gameOver) {
       this.timeSince += delta;
       this.timeSinceLastWave += delta;
 
@@ -72,7 +79,7 @@ export class GameController extends Phaser.Events.EventEmitter {
         // start next wave already
         this.timeSinceLastWave = 0;
         this.wave += 1;
-        this.emit("spawn_wave", this.wave);
+        this.emit(GameEvents.SPAWN_WAVE, this.wave);
         this.spawned = 0;
         if (!this.waves[this.wave]) {
           this.isSpawning = false;
@@ -92,18 +99,29 @@ export class GameController extends Phaser.Events.EventEmitter {
   }
 
   start() {
-    this.waves = waves;
-    this.wave = 0;
-    this.timeSince = 0;
-    this.timeSinceLastWave = 0;
-    if (!this.isSpawning) this.spawnWave(this.wave);
+    if (this.gameOver) {
+      this.entityQuery
+        .refresh()
+        .execute()
+        .forEach((e) => e.destroy());
+      this.gameOver = false;
+      this.text.destroy();
+    }
+
+    if (!this.isSpawning) {
+      this.waves = waves;
+      this.wave = 0;
+      this.timeSince = 0;
+      this.timeSinceLastWave = 0;
+      this.spawnWave(this.wave);
+    }
   }
 
   spawnWave(number) {
     this.isSpawning = true;
     this.wave = number;
     this.spawned = 0;
-    this.emit("spawn_wave", this.wave);
+    this.emit(GameEvents.SPAWN_WAVE, this.wave);
   }
 
   addCreature() {
@@ -123,16 +141,30 @@ export class GameController extends Phaser.Events.EventEmitter {
 
   createTower(x, y) {
     if (this.health >= 5) {
-      this.world.createEntity({
+      const tower = this.world.createEntity({
         c: [{ type: "PositionComponent", x, y }, { type: "TowerComponent" }],
       });
       this.reduceHealthBy(5);
+      return tower;
     }
   }
 
   reduceHealthBy(amount, isDamage) {
     this.health -= amount;
     this.emit(GameEvents.HEALTH_CHANGE);
+    if (this.health < 0) {
+      this.emit(GameEvents.GAME_OVER);
+      this.gameOver = true;
+      this.text = this.scene.add.text(
+        this.scene.game.renderer.width / 2,
+        this.scene.game.renderer.height / 2,
+        "GAME OVER",
+        { fontSize: 128 }
+      );
+
+      this.text.x -= this.text.width;
+      this.text.y -= this.text.height;
+    }
     if (isDamage) this.emit(GameEvents.TAKE_DAMAGE);
   }
 
@@ -145,6 +177,8 @@ export class GameController extends Phaser.Events.EventEmitter {
 export const GameEvents = {
   HEALTH_CHANGE: 0,
   TAKE_DAMAGE: 1,
+  GAME_OVER: 2,
+  SPAWN_WAVE: 3,
 };
 
 const waves = [

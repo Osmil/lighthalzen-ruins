@@ -84,7 +84,7 @@ export class ProjectileSystem extends System {
     if (distance < combinedRadii) {
       //HIT
       const stats = projectileComponent.target.getOne(StatsComponent);
-      stats.hp -= 5;
+      stats.hp -= projectileComponent.damage;
       stats.update("hp");
 
       entity.destroy();
