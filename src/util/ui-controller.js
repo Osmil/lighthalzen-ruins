@@ -19,10 +19,6 @@ export class UIScene extends Scene {
 
   preload() {}
 
-  create() {
-    this.init();
-  }
-
   update() {
     this.wavebarContainer.getAll().forEach((e, index) => {
       const state =
@@ -42,6 +38,7 @@ export class UIScene extends Scene {
   }
 
   create() {
+    this.init();
     this.menuContainer = this.add.container(50, 50);
 
     this.playButton = this.createButton({ x: 0, y: 0 }, "Play", () =>
@@ -52,6 +49,7 @@ export class UIScene extends Scene {
     window.addEventListener("resize", this.refresh.bind(this));
     this.refresh();
     this.createWaveBars();
+    this.createManaBar();
   }
 
   refresh() {
@@ -109,7 +107,15 @@ export class UIScene extends Scene {
     return container;
   }
 
-  createManaBar() {}
+  createManaBar() {
+    this.add.rectangle(
+      (13 * TILE_WIDTH) / 2 + 50,
+      0,
+      13 * TILE_WIDTH,
+      50,
+      0x782299
+    );
+  }
 
   createWaveBars() {
     const height = 11 * TILE_HEIGHT;
