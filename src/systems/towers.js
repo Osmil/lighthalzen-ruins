@@ -22,7 +22,6 @@ export class TowersSystem extends System {
     const creatures = Array.from(this.enemyQuery.execute());
     const delta = this.world.getEntity("delta").getOne(DeltaComponent).delta;
     this.addGraphics();
-    console.log(entities.size);
     entities.forEach((entity) => {
       const point = entity.getOne(PositionComponent);
       const stats = entity.getOne(TowerComponent);

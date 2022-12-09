@@ -31,11 +31,16 @@ export class HealthSystem extends System {
       }
 
       if (change.op == "add") {
-        const background = scene.add.rectangle(0, 0, 10, 4, 0xff0000);
+        const positionComponent = entity.getOne(PositionComponent);
+        const background = scene.add.rectangle(0, 0, 50, 12, 0xff0000);
         background.setName("background");
-        const foreground = scene.add.rectangle(0, 0, 10, 4, 0x00ff00);
+        const foreground = scene.add.rectangle(0, 0, 50, 12, 0x00ff00);
         foreground.setName("foreground");
-        const group = scene.add.container(0, 0, [background, foreground]);
+        const group = scene.add.container(
+          positionComponent.x,
+          positionComponent.y - 10,
+          [background, foreground]
+        );
         entity.addComponent({ type: "HealthbarComponent", graphics: group });
       }
     });

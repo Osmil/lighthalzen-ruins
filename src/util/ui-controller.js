@@ -1,6 +1,7 @@
 import { Scene } from "phaser";
 import { MyGame } from "..";
 import { GameController, GameEvents } from "./game-controller";
+import { TILE_HEIGHT, TILE_WIDTH } from "./maze";
 
 export class UIScene extends Scene {
   /**
@@ -22,11 +23,21 @@ export class UIScene extends Scene {
     this.init();
   }
 
-  update() {}
+  update() {
+    this.wavebarContainer.getAll().forEach((e, index) => {
+      const state =
+        this.gameController.timeSinceLastWave /
+        this.gameController.timeBetweenWaves;
+      e.setPosition(e.x, e.waveIndex * 100 + 50 - 100 * state);
+    });
+  }
 
   init(data) {
     if (data) {
       this.gameController = data.game;
+      this.gameController.on("spawn_wave", (i) => {
+        this.updateWaveBar(i);
+      });
     }
   }
 
@@ -40,6 +51,7 @@ export class UIScene extends Scene {
 
     window.addEventListener("resize", this.refresh.bind(this));
     this.refresh();
+    this.createWaveBars();
   }
 
   refresh() {
@@ -50,7 +62,7 @@ export class UIScene extends Scene {
       .sort((a, b) => a.width - b.width)
       .at(0).width;
 
-    this.menuContainer.setX(document.body.clientWidth - highestWidth);
+    this.menuContainer.setX(this.game.renderer.width - highestWidth);
 
     this.healthText = this.add.text(
       50,
@@ -95,5 +107,40 @@ export class UIScene extends Scene {
     );
 
     return container;
+  }
+
+  createManaBar() {}
+
+  createWaveBars() {
+    const height = 11 * TILE_HEIGHT;
+    const background = this.add.rectangle(
+      25,
+      height / 2 + 50,
+      50,
+      height,
+      0xeeeeee
+    );
+    this.wavebarContainer = this.add.container(0, 50);
+    this.gameController.waves.forEach((wave, index) => {
+      const container = this.add.container(25, 50 + 100 * index);
+      container.waveIndex = index;
+      const tile = this.add.rectangle(0, 0, 50, 100, 0xcccccc);
+      tile.setStrokeStyle(5, 0xffffff);
+      container.add(tile);
+      const text = this.add.text(0, 0, `${wave.amount}`, {
+        color: 0xffffff,
+        fontSize: 40,
+      });
+      text.setX(0 - text.width / 2);
+      container.add(text);
+
+      this.wavebarContainer.add(container);
+    });
+  }
+
+  updateWaveBar(i) {
+    this.wavebarContainer.getAt(0)?.destroy();
+    if (i != 0)
+      this.wavebarContainer.getAll().forEach((e) => (e.waveIndex -= 1));
   }
 }

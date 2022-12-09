@@ -6,4 +6,4 @@ export class StatsComponent extends Component {
   speed = 10;
   static changeEvents = true;
 }
-StatsComponent.properties = { speed: 10, hp: 10, maxHP: 10 };
+StatsComponent.properties = { speed: 5, hp: 10, maxHP: 10 };

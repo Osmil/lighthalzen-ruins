@@ -5,4 +5,4 @@ export class TowerComponent extends Component {
   shootTimer = 0;
   range = 0;
 }
-TowerComponent.properties = { shootCooldown: 1000, shootTimer: 0, range: 100 };
+TowerComponent.properties = { shootCooldown: 1000, shootTimer: 0, range: 500 };

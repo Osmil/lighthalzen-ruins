@@ -65,7 +65,7 @@ export class ProjectileSystem extends System {
       creaturePosition.y - projectilePosition.y
     );
 
-    vector.normalize().scale(2);
+    vector.normalize().scale(projectileComponent.speed);
 
     projectilePosition.x += vector.x;
     projectilePosition.y += vector.y;

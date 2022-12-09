@@ -5,6 +5,8 @@ import { HealthbarComponent } from "../components/healtbar";
 import { PathComponent } from "../components/path";
 import { PositionComponent } from "../components/position";
 import { SceneComponent } from "../components/scene";
+import { StatsComponent } from "../components/stats";
+import { TILE_HEIGHT, TILE_WIDTH } from "../util/maze";
 export class CreatureSystem extends System {
   init() {
     this.subscribe("CreatureComponent");
@@ -23,6 +25,7 @@ export class CreatureSystem extends System {
     const pathComponent = entity.getOne(PathComponent);
     const creaturePosition = entity.getOne(PositionComponent);
     const creatureComponent = entity.getOne(CreatureComponent);
+    const statsComponent = entity.getOne(StatsComponent);
 
     if (!pathComponent.path) return;
     const path = pathComponent.path;
@@ -37,8 +40,8 @@ export class CreatureSystem extends System {
     }
     const position = path[0];
     const whereWeWantToGo = {
-      x: position[0] * 32,
-      y: position[1] * 32,
+      x: position[0] * TILE_WIDTH,
+      y: position[1] * TILE_HEIGHT,
     };
     const distance = Phaser.Math.Distance.BetweenPoints(
       creaturePosition,
@@ -53,7 +56,9 @@ export class CreatureSystem extends System {
 
     vector.normalize();
 
-    if (distance > 0) {
+    vector.scale(statsComponent.speed);
+
+    if (distance > 5) {
       creaturePosition.x += vector.x;
       creaturePosition.y += vector.y;
       creatureComponent.update("x"); //MARK THAT WE CHANGED THIS SO OUR SYSTEM TO UPDATE GRAPHICS GETS IT
@@ -69,7 +74,7 @@ export class CreatureSystem extends System {
       if (change.op == "add" && change.type == "CreatureComponent") {
         this.creatureQuery.refresh();
         const position = entity.getOne(PositionComponent);
-        const graphics = scene.add.circle(position.x, position.y, 8, 0xff00ff);
+        const graphics = scene.add.circle(position.x, position.y, 40, 0xff00ff);
         entity.addComponent({ type: "GraphicsComponent", graphics });
       } else if (change.op == "change" && entity) {
         const position = entity.getOne(PositionComponent);

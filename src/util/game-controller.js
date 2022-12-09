@@ -17,7 +17,6 @@ import { ProjectileSystem } from "../systems/projectile";
 import { StatsSystem } from "../systems/stats";
 import { TowersSystem } from "../systems/towers";
 import { getPath, TILE_HEIGHT, TILE_WIDTH } from "./maze";
-import { Projectile } from "./projectile";
 
 export class GameController extends Phaser.Events.EventEmitter {
   health = 10;
@@ -27,10 +26,14 @@ export class GameController extends Phaser.Events.EventEmitter {
   timeSince = 0;
   spawned = 0;
 
+  timeBetweenWaves = 10000;
+  timeSinceLastWave = 0;
+
   isSpawning = false;
 
   constructor() {
     super();
+    this.waves = waves;
     this.world = new World();
     this.world.registerComponent(PositionComponent);
     this.world.registerComponent(GraphicsComponent);
@@ -63,21 +66,33 @@ export class GameController extends Phaser.Events.EventEmitter {
 
     if (this.isSpawning) {
       this.timeSince += delta;
-      if (this.spawned === waves[this.wave].amount) {
-        this.isSpawning = false;
+      this.timeSinceLastWave += delta;
+
+      if (this.timeSinceLastWave > this.timeBetweenWaves) {
+        // start next wave already
+        this.timeSinceLastWave = 0;
         this.wave += 1;
+        this.emit("spawn_wave", this.wave);
         this.spawned = 0;
-      } else {
-        if (this.timeSince >= waves[this.wave].wait) {
-          this.addCreature();
-          this.spawned += 1;
-          this.timeSince = 0;
+        if (!this.waves[this.wave]) {
+          this.isSpawning = false;
+          return;
         }
+      }
+
+      if (
+        this.timeSince >= waves[this.wave].wait &&
+        this.spawned < waves[this.wave].amount
+      ) {
+        this.addCreature();
+        this.spawned += 1;
+        this.timeSince = 0;
       }
     }
   }
 
   start() {
+    this.waves = waves;
     if (!this.isSpawning) this.spawnWave(this.wave);
   }
 
@@ -85,6 +100,7 @@ export class GameController extends Phaser.Events.EventEmitter {
     this.isSpawning = true;
     this.wave = number;
     this.spawned = 0;
+    this.emit("spawn_wave", this.wave);
   }
 
   addCreature() {
@@ -130,6 +146,6 @@ export const GameEvents = {
 
 const waves = [
   { amount: 10, wait: 250 },
-  { amount: 3, wait: 50 },
-  { amount: 20, wait: 100 },
+  { amount: 3, wait: 250 },
+  { amount: 20, wait: 250 },
 ];
