@@ -1,4 +1,5 @@
 import { Entity, System } from "ape-ecs";
+import { MyGame } from "..";
 import { CreatureComponent } from "../components/creature";
 import { DeltaComponent } from "../components/delta";
 import { GraphicsComponent } from "../components/graphics";
@@ -6,7 +7,6 @@ import { PositionComponent } from "../components/position";
 import { SceneComponent } from "../components/scene";
 import { TowerComponent } from "../components/tower";
 import { TILE_HEIGHT, TILE_WIDTH } from "../util/maze";
-
 export class TowersSystem extends System {
   init() {
     this.mainQuery = this.createQuery().fromAll("TowerComponent");
@@ -143,23 +143,25 @@ export class TowersSystem extends System {
   /**
    *
    * @param {Entity} towerEntity
-   * @param {Phaser.Scene} scene
+   * @param {MyGame} scene
    */
   upgrade(towerEntity, scene) {
+    const gameController = scene.gameController;
     const graphicsComponent = towerEntity.getOne(GraphicsComponent);
     const statsComponent = towerEntity.getOne(TowerComponent);
-    /**
-     * @type {Phaser.GameObjects.Image}
-     */
-    graphicsComponent.graphics.destroy();
 
-    statsComponent.damage = 5;
+    if(gameController.health >5) {
+      gameController.health = gameController.health-5;
+      graphicsComponent.graphics.destroy();
 
-    const position = towerEntity.getOne(PositionComponent);
-    graphicsComponent.graphics = scene.add.image(
-      position.x,
-      position.y,
-      "redTower"
-    );
+      statsComponent.damage = 7;
+
+      const position = towerEntity.getOne(PositionComponent);
+      graphicsComponent.graphics = scene.add.image(
+        position.x,
+        position.y,
+        "redTower"
+      );
+    }
   }
 }

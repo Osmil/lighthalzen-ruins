@@ -1,8 +1,30 @@
 import { Component } from "ape-ecs";
+import Phaser from "phaser";
 
-export class CreatureComponent extends Component {
+export class GraphicsComponent extends Component {
+  /**
+   * @type Map<keyof DebugKeys, Graphics>
+   */
+  graphicsMap = new Map();
+  delete = false;
   static changeEvents = true;
-  species = 0;
-  isReturning = false;
+  /**
+   * @type keyof DebugKeys
+   */
+
+  test;
+  preDestroy() {
+    if (this.graphics) this.graphics.destroy();
+  }
+  
+  addDebugGraphics(key, graphics) {
+    this.graphicsMap.set(key, graphics);
+  }
 }
-CreatureComponent.properties = { species: 0 };
+GraphicsComponent.properties = { graphics: undefined };
+
+
+export const DebugKeys= {
+  TARGET,
+  BEST
+}
