@@ -10,7 +10,11 @@ export class DebugComponent extends Component {
   preDestroy() {
     if (this.graphics) this.graphics.destroy();
   }
-  
+  /**
+   * 
+   * @param {keyof DebugKeys} key 
+   * @param {Graphics} graphics 
+   */
   addDebugGraphics(key, graphics) {
     this.graphicsMap.set(key, graphics);
   }
